@@ -247,6 +247,71 @@ var acceso={
                 	io.to(data.idSkt).emit('SetCambioUsuario', json);
                 }
         });
+	},
+	getUsuarios:function(data){		//var dt=Func.Decrypted(data.aes);console.log(dt);
+		var sql= "SELECT array_to_json(array_agg(d)) as datos FROM ( "+ 
+					"SELECT COALESCE(row_to_json(t), '[]') as datos FROM "+
+					"( " +
+						"select u.id,u.nombre,usuario,u.clave,p.perfil,u.perfil id_perfil,activo id_activo,CASE WHEN (activo = 1) THEN 'Si' ELSE 'No' END AS activo "+
+						"from t_usuario u inner join p_perfil p on u.perfil = p.id order by usuario"+
+					")t"+
+				")d";	//console.log(sql);
+		pool.query(sql,
+         function(err, res) {
+                if (err) {
+                    return console.error('error running query', err);
+                }               
+                io.to(data.idSkt).emit('Usrs', res.rows[0].datos);
+        });
+	},
+	addUsuario:function(data){
+		var dt=Func.Decrypted(data.aes);
+		console.log(dt);
+		var sql="INSERT INTO public.t_usuario (nombre,usuario,clave,activo,perfil) VALUES ('"+
+		dt.nombre+"','"+dt.usuario+"','"+dt.clave+"','1','"+dt.perfil+"')";
+		console.log(sql);	
+		pool.query(sql,
+         function(err, result) {
+                if (err) {
+					var json=Func.Ecrypted({resp:err});    
+					io.to(data.idSkt).emit('setUsuarioResp', json);
+                    return console.error('error running query', err);
+                }               
+				var json=Func.Ecrypted({resp:'ok'});    
+				io.to(data.idSkt).emit('setUsuarioResp', json);
+        });
+	},
+	updUsuario:function(data){
+		var dt=Func.Decrypted(data.aes);
+		console.log(dt);
+		var sql="UPDATE public.t_usuario SET nombre='"+dt.nombre+"',usuario='"+dt.usuario+"',clave='"+dt.clave+"',activo='"+dt.activo+"',perfil='"+dt.perfil+"' WHERE id ='"+dt.id+"'";
+		console.log(sql);	
+		pool.query(sql,
+         function(err, result) {
+                if (err) {
+					var json=Func.Ecrypted({resp:err});    
+					io.to(data.idSkt).emit('updUsuarioResp', json);
+                    return console.error('error running query', err);
+                }               
+				var json=Func.Ecrypted({resp:'ok'});    
+				io.to(data.idSkt).emit('updUsuarioResp', json);
+        });
+	},
+	delUsuario:function(data){
+		var dt=Func.Decrypted(data.aes);
+		console.log(dt);
+		var sql="DELETE FROM public.t_usuario WHERE id ='"+dt.id+"'";
+		console.log(sql);	
+		pool.query(sql,
+         function(err, result) {
+                if (err) {
+					var json=Func.Ecrypted({resp:err});    
+					io.to(data.idSkt).emit('delUsuarioResp', json);
+                    return console.error('error running query', err);
+                }               
+				var json=Func.Ecrypted({resp:'ok'});    
+				io.to(data.idSkt).emit('delUsuarioResp', json);
+        });
 	}
 };
 var GeoCode={
@@ -326,6 +391,25 @@ var GeoCode={
 		     acceso.CambioClave(data);
 		   });
 		   
+		   sckt.on('listaUsuario', function (data) {
+		  	 console.log('listaUsuario');	//console.log(data);
+		     acceso.getUsuarios(data);
+		   });
+		   
+		   sckt.on('setUsuario', function (data) {
+		  	 console.log('setUsuario');	console.log(data);
+		     acceso.addUsuario(data);
+		   });
+		   
+		   sckt.on('updUsuario', function (data) {
+		  	 console.log('updUsuario');	console.log(data);
+		     acceso.updUsuario(data);
+		   });
+		   
+		   sckt.on('delUsuario', function (data) {
+		  	 console.log('delUsuario');	console.log(data);
+		     acceso.delUsuario(data);
+		   });
 		   
 		});
 	},

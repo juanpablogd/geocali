@@ -47,5 +47,67 @@ var Func={
 			//console.log('Valido');
 			_this.ValidaUsuario();
 		}, 1000*5);	
+	},
+	msjAlerta:function(msj){	//notify.close();
+		var notify = $.notify({
+                icon: 'glyphicon glyphicon-warning-sign',
+                title: ' ',
+                message: msj                
+            },
+            { 
+            type: "danger", 
+            timer : 100,
+            delay: 3000,
+            z_index: 2061,
+            animate: {
+                enter: 'animated bounceIn',
+                exit: 'animated bounceOut'
+            },
+            placement: {
+                from: "top",
+                align: "center"
+            }
+        });
+	},
+	msjExito:function(msj){
+		var notify = $.notify({
+                icon: 'glyphicon glyphicon-warning-sign',
+                title: ' ',
+                message: msj                
+            },
+            { 
+            type: "success", 
+            timer : 100,
+            delay: 3000,
+            z_index: 2061,
+            animate: {
+                enter: 'animated bounceIn',
+                exit: 'animated bounceOut'
+            },
+            placement: {
+                from: "top",
+                align: "center"
+            }
+        });
+	},
+	setmpId: function (id){
+		var DatosUsuario=this.Decrypted(sessionStorage.dt);
+		DatosUsuario.tmpId = id;
+		sessionStorage.dt = Func.Ecrypted(DatosUsuario);
+		return	true;
+	},
+	getmpId: function (){
+		var DatosUsuario=this.Decrypted(sessionStorage.dt);
+		return	DatosUsuario.tmpId;
+	},
+	setmpNom: function (nom){
+		var DatosUsuario=this.Decrypted(sessionStorage.dt);
+		DatosUsuario.tmpNom = nom;
+		sessionStorage.dt = Func.Ecrypted(DatosUsuario);
+		return	true;
+	},
+	getmpNom: function (){
+		var DatosUsuario=this.Decrypted(sessionStorage.dt);
+		return	DatosUsuario.tmpNom;
 	}
 };
